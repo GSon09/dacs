@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Thêm sách</h1>
+        <h1>Sửa sách</h1>
         <a href="{{ route('books.index') }}" class="btn btn-secondary">Quay lại danh sách</a>
     </div>
 
@@ -19,11 +19,13 @@
 
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('books.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('books.update', $book->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
+                
                 <div class="mb-3">
-                    <label class="form-label">Tên</label>
-                    <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
+                    <label class="form-label">Tên sách</label>
+                    <input type="text" name="title" class="form-control" value="{{ old('title', $book->title) }}" required>
                 </div>
 
                 <div class="mb-3">
@@ -31,11 +33,13 @@
                     <select name="author_id" class="form-control">
                         <option value="">-- Chọn tác giả --</option>
                         @foreach($authors as $author)
-                            <option value="{{ $author->id }}" {{ old('author_id') == $author->id ? 'selected' : '' }}>{{ $author->name }}</option>
+                            <option value="{{ $author->id }}" {{ old('author_id', $book->author_id) == $author->id ? 'selected' : '' }}>
+                                {{ $author->name }}
+                            </option>
                         @endforeach
                     </select>
                     <small class="text-muted">Hoặc thêm tác giả mới bên dưới</small>
-                    <input type="text" name="author_new" class="form-control mt-2" placeholder="Tác giả khác" value="{{ old('author_new') }}">
+                    <input type="text" name="author_new" class="form-control mt-2" placeholder="Tên tác giả mới" value="{{ old('author_new') }}">
                 </div>
 
                 <div class="mb-3">
@@ -54,7 +58,7 @@
                         @foreach($allowed as $name)
                             @if(isset($byName[$name]))
                                 @php $cat = $byName[$name]; @endphp
-                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                <option value="{{ $cat->id }}" {{ old('category_id', $book->category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -65,36 +69,50 @@
                     <select name="publisher_id" class="form-control">
                         <option value="">-- Chọn nhà xuất bản --</option>
                         @foreach($publishers as $publisher)
-                            <option value="{{ $publisher->id }}" {{ old('publisher_id') == $publisher->id ? 'selected' : '' }}>{{ $publisher->name }}</option>
+                            <option value="{{ $publisher->id }}" {{ old('publisher_id', $book->publisher_id) == $publisher->id ? 'selected' : '' }}>
+                                {{ $publisher->name }}
+                            </option>
                         @endforeach
                     </select>
                     <small class="text-muted">Hoặc thêm nhà xuất bản mới bên dưới</small>
-                    <input type="text" name="publisher_new" class="form-control mt-2" placeholder="Nhà xuất bản khác" value="{{ old('publisher_new') }}">
+                    <input type="text" name="publisher_new" class="form-control mt-2" placeholder="Tên nhà xuất bản mới" value="{{ old('publisher_new') }}">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Giá tiền</label>
-                    <input type="number" step="1" name="price" class="form-control" value="{{ old('price') }}" required>
+                    <input type="number" step="1" name="price" class="form-control" value="{{ old('price', $book->price) }}" required>
                     <small class="text-muted">Đơn vị: VND</small>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Tồn kho</label>
-                    <input type="number" name="stock" class="form-control" value="{{ old('stock', 0) }}">
+                    <input type="number" name="stock" class="form-control" value="{{ old('stock', $book->stock) }}">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Mô tả</label>
-                    <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
+                    <textarea name="description" class="form-control" rows="4">{{ old('description', $book->description) }}</textarea>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Ảnh bìa</label>
-                    <input type="file" name="cover" class="form-control" accept="image/*">
-                    <small class="text-muted">bìa sách</small>
+                    <label class="form-label">Ảnh bìa hiện tại</label>
+                    @if($book->cover_path && file_exists(public_path('storage/' . $book->cover_path)))
+                        <div class="mb-2">
+                            <img src="{{ asset('storage/' . $book->cover_path) }}" alt="{{ $book->title }}" style="max-width: 200px; height: auto;" class="img-thumbnail">
+                        </div>
+                    @else
+                        <p class="text-muted">Chưa có ảnh bìa</p>
+                    @endif
                 </div>
 
-                <button class="btn btn-success">Lưu</button>
+                <div class="mb-3">
+                    <label class="form-label">Thay đổi ảnh bìa</label>
+                    <input type="file" name="cover" class="form-control" accept="image/*">
+                    <small class="text-muted">Để trống nếu không muốn thay đổi ảnh bìa</small>
+                </div>
+
+                <button class="btn btn-primary">Cập nhật</button>
+                <a href="{{ route('books.index') }}" class="btn btn-secondary">Hủy</a>
             </form>
         </div>
     </div>

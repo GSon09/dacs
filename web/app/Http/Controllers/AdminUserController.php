@@ -11,7 +11,8 @@ class AdminUserController extends Controller
      */
     public function index()
     {
-        //
+        $users = \App\Models\User::paginate(15);
+        return view('admin.users.index', compact('users'));
     }
 
     /**
@@ -19,7 +20,7 @@ class AdminUserController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.users.create');
     }
 
     /**
@@ -27,7 +28,21 @@ class AdminUserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|max:20|unique:users,phone',
+            'password' => 'required|string|min:8',
+            'utype' => 'required|in:ADM,USR',
+        ]);
+        $user = new \App\Models\User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->password = \Hash::make($request->password);
+        $user->utype = $request->utype;
+        $user->save();
+        return redirect()->route('users.index')->with('success', 'Tạo người dùng thành công!');
     }
 
     /**
@@ -41,24 +56,42 @@ class AdminUserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $user = \App\Models\User::findOrFail($id);
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $user = \App\Models\User::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'required|string|max:20|unique:users,phone,' . $user->id,
+            'utype' => 'required|in:ADM,USR',
+        ]);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        if ($request->filled('password')) {
+            $user->password = \Hash::make($request->password);
+        }
+        $user->utype = $request->utype;
+        $user->save();
+        return redirect()->route('users.index')->with('success', 'Cập nhật người dùng thành công!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $user = \App\Models\User::findOrFail($id);
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'Xóa người dùng thành công!');
     }
 }

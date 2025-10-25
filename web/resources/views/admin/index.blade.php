@@ -2,7 +2,7 @@
 @php use Carbon\Carbon; @endphp
 @section('content')
 <div class="container-fluid">
-    <h1 class="mb-4">Admin Dashboard</h1>
+    <h1 class="mb-4">Bảng quản trị</h1>
     <div class="row mb-4">
         <div class="col-md-2">
             <div class="card text-center">
@@ -59,7 +59,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="card-title">Biểu đồ doanh thu 7 ngày gần nhất</h6>
+                    <h6 class="card-title">Doanh thu 7 ngày gần nhất</h6>
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>

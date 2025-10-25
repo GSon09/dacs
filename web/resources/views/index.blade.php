@@ -68,7 +68,7 @@
                             <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794" class="card-img-top" alt="Văn học" style="height: 120px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title" style="color: #4B2067;">Văn học</h5>
-                                <a href="#" class="btn btn-outline-dark btn-sm">Xem sách</a>
+                                <a href="{{ route('category.show', ['id' => 1]) }}" class="btn btn-outline-dark btn-sm">Xem sách</a>
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                             <img src="https://images.unsplash.com/photo-1524985069026-dd778a71c7b4" class="card-img-top" alt="Kỹ năng sống" style="height: 120px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title" style="color: #4B2067;">Kỹ năng sống</h5>
-                                <a href="#" class="btn btn-outline-dark btn-sm">Xem sách</a>
+                                <a href="{{ route('category.show', ['id' => 3]) }}" class="btn btn-outline-dark btn-sm">Xem sách</a>
                             </div>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                             <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca" class="card-img-top" alt="Thiếu nhi" style="height: 120px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title" style="color: #4B2067;">Thiếu nhi</h5>
-                                <a href="#" class="btn btn-outline-dark btn-sm">Xem sách</a>
+                                <a href="{{ route('category.show', ['id' => 4]) }}" class="btn btn-outline-dark btn-sm">Xem sách</a>
                             </div>
                         </div>
                     </div>

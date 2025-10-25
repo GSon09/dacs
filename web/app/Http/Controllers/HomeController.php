@@ -25,4 +25,95 @@ class HomeController extends Controller
     {
         return view('index');
     }
+
+    // Hiển thị tất cả sản phẩm với bộ lọc
+    public function allProducts(Request $request)
+    {
+        $query = \App\Models\Book::with(['author', 'publisher', 'category']);
+        
+        // Lọc theo category
+        if ($request->has('category_id') && $request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+        
+        // Lọc theo giá
+        if ($request->has('price_range') && $request->price_range) {
+            switch ($request->price_range) {
+                case '1':
+                    $query->whereBetween('price', [0, 150000]);
+                    break;
+                case '2':
+                    $query->whereBetween('price', [150000, 300000]);
+                    break;
+                case '3':
+                    $query->whereBetween('price', [300000, 500000]);
+                    break;
+                case '4':
+                    $query->whereBetween('price', [500000, 700000]);
+                    break;
+                case '5':
+                    $query->where('price', '>=', 700000);
+                    break;
+            }
+        }
+        
+        // Lọc theo type (thể loại)
+        if ($request->has('type') && $request->type) {
+            $query->where('type', $request->type);
+        }
+        
+        // Sắp xếp
+        if ($request->has('sort') && $request->sort) {
+            switch ($request->sort) {
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
+        }
+        
+        $books = $query->paginate($request->get('per_page', 24));
+        $categories = \App\Models\Category::all();
+        
+        return view('all-products', compact('books', 'categories'));
+    }
+
+    // Hiển thị sách theo danh mục
+    public function category($id)
+    {
+        $category = \App\Models\Category::findOrFail($id);
+        $books = \App\Models\Book::where('category_id', $id)->with(['author', 'publisher'])->paginate(12);
+        $categories = \App\Models\Category::all();
+        
+        // Debug log
+        \Log::info('Category page accessed', [
+            'category_id' => $id,
+            'category_name' => $category->name,
+            'books_count' => $books->count()
+        ]);
+        
+        return view('category', compact('category', 'books', 'categories'));
+    }
+
+    // Hiển thị chi tiết sách
+    public function bookDetail($id)
+    {
+        $book = \App\Models\Book::with(['author', 'publisher', 'category'])->findOrFail($id);
+        
+        // Lấy sách liên quan cùng danh mục
+        $relatedBooks = \App\Models\Book::where('category_id', $book->category_id)
+            ->where('id', '!=', $id)
+            ->with(['author', 'publisher'])
+            ->limit(4)
+            ->get();
+        
+        return view('book-detail', compact('book', 'relatedBooks'));
+    }
 }

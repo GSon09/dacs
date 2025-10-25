@@ -3,7 +3,7 @@
 <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Dashboard</title>
+        <title>Quản trị</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
                 body { background: #f8f9fa; }
@@ -37,7 +37,7 @@
                                                 <form action="/logout" method="POST" style="display:inline;">
                                                         @csrf
                                                         <button type="submit" class="nav-link text-danger" style="background:none; border:none; padding:0; cursor:pointer;">
-                                                                Logout
+                                                                Đăng xuất
                                                         </button>
                                                 </form>
                                         </li>

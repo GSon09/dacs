@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminAuthorController;
 use App\Http\Controllers\AdminPublisherController;
 use App\Http\Controllers\AdminBookController;
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\CartController;
 //Auth::routes();
 
 // Hiển thị giao diện đăng nhập và đăng ký đúng
@@ -22,15 +23,33 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
 
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-Route::post('/register', [RegisterController::class, 'register'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
 // Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+// Trang hiển thị tất cả sản phẩm với bộ lọc
+Route::get('/products', [HomeController::class, 'allProducts'])->name('products.all');
+// Trang hiển thị sách theo danh mục
+Route::get('/category/{id}', [HomeController::class, 'category'])->name('category.show');
+// Trang chi tiết sách
+Route::get('/book/{id}', [HomeController::class, 'bookDetail'])->name('book.detail');
+
+// Giỏ hàng
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{bookId}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+// Test route để debug
+Route::get('/test-category', function () {
+    return 'Test route works! This is NOT the index page.';
+});
 
 Route::post('/logout', function () {
     Auth::logout();

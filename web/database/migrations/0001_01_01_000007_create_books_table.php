@@ -10,6 +10,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('author_id');
             $table->unsignedBigInteger('publisher_id');
+            $table->string('type')->nullable()->comment('Phân loại sản phẩm: văn học, tiểu thuyết, truyện ngắn...');
             $table->decimal('price', 12, 2);
             $table->integer('stock')->default(0);
             $table->text('description')->nullable();

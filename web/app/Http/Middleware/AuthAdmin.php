@@ -21,10 +21,10 @@ class AuthAdmin
                 return $next($request);
             }else{
                 Auth::logout(); // Đăng xuất hoàn toàn
-                return redirect('/')->route('login');
+                return redirect()->route('login');
             }
         } else {
-            return redirect('/')->route('login')->with('status',"Please Login to access Admin Dashboard");
+            return redirect()->route('login')->with('status',"Please Login to access Admin Dashboard");
         }
     }
 }
