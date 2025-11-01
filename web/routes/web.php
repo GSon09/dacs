@@ -15,6 +15,9 @@ use App\Http\Controllers\AdminPublisherController;
 use App\Http\Controllers\AdminBookController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\NotificationController;
 //Auth::routes();
 
 // Hiển thị giao diện đăng nhập và đăng ký đúng
@@ -46,6 +49,16 @@ Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('c
 Route::delete('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+// Thanh toán
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+// Đánh giá sản phẩm
+Route::post('/book/{bookId}/review', [ReviewController::class, 'store'])->name('review.store');
+Route::get('/book/{bookId}/reviews', [ReviewController::class, 'getReviews'])->name('review.get');
+Route::get('/book/{bookId}/can-review', [ReviewController::class, 'canReview'])->name('review.canReview');
+
 // Test route để debug
 Route::get('/test-category', function () {
     return 'Test route works! This is NOT the index page.';
@@ -63,6 +76,15 @@ Route::get('/welcome', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
+    
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/count', [NotificationController::class, 'getUnreadCount'])->name('notifications.count');
+    Route::get('/notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/clear-read', [NotificationController::class, 'clearRead'])->name('notifications.clearRead');
 });
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {

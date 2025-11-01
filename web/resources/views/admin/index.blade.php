@@ -4,53 +4,64 @@
 <div class="container-fluid">
     <h1 class="mb-4">Bảng quản trị</h1>
     <div class="row mb-4">
-        <div class="col-md-2">
-            <div class="card text-center">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary text-center">
                 <div class="card-body">
                     <h6 class="card-title">Tổng đơn hàng</h6>
-                    <h3>{{ $totalOrders }}</h3>
+                    <h2 class="mb-0">{{ $totalOrders }}</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center">
+        <div class="col-md-3">
+            <div class="card text-white bg-success text-center">
                 <div class="card-body">
                     <h6 class="card-title">Đơn đã giao</h6>
-                    <h3>{{ $deliveredOrders }}</h3>
+                    <h2 class="mb-0">{{ $deliveredOrders }}</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center">
+        <div class="col-md-3">
+            <div class="card text-white bg-warning text-center">
                 <div class="card-body">
-                    <h6 class="card-title">Tổng thu nhập</h6>
-                    <h3>{{ number_format($totalIncome, 0, ',', '.') }}₫</h3>
+                    <h6 class="card-title">Đơn chờ xử lý</h6>
+                    <h2 class="mb-0">{{ $pendingOrders }}</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center">
+        <div class="col-md-3">
+            <div class="card text-white bg-danger text-center">
                 <div class="card-body">
-                    <h6 class="card-title">Đơn chờ lấy hàng</h6>
-                    <h3>{{ $waitingPickupOrders }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h6 class="card-title">Đơn hủy</h6>
-                    <h3>{{ $canceledOrders }}</h3>
+                    <h6 class="card-title">Đơn đã hủy</h6>
+                    <h2 class="mb-0">{{ $canceledOrders }}</h2>
                 </div>
             </div>
         </div>
     </div>
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card text-center">
+            <div class="card text-white bg-info text-center">
                 <div class="card-body">
-                    <h6 class="card-title">Thu nhập đơn đã giao</h6>
-                    <h3>{{ number_format($totalIncome, 0, ',', '.') }}₫</h3>
+                    <h6 class="card-title">Tổng doanh thu</h6>
+                    <h2 class="mb-0">{{ number_format($totalIncome, 0, ',', '.') }}₫</h2>
+                    <small>Từ đơn đã giao</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Đơn chờ lấy hàng</h6>
+                    <h2 class="mb-0 text-warning">{{ $waitingPickupOrders }}</h2>
+                    <small class="text-muted">{{ number_format($pendingOrderAmount, 0, ',', '.') }}₫</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-danger text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Đơn đã hủy</h6>
+                    <h2 class="mb-0 text-danger">{{ $canceledOrders }}</h2>
+                    <small class="text-muted">{{ number_format($canceledOrderAmount, 0, ',', '.') }}₫</small>
                 </div>
             </div>
         </div>
@@ -75,28 +86,43 @@
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th>Tên</th>
+                                    <th>Mã đơn</th>
+                                    <th>Tên khách hàng</th>
                                     <th>SĐT</th>
-                                    <th>Giá</th>
-                                    <th>Thuế</th>
                                     <th>Tổng tiền</th>
                                     <th>Trạng thái</th>
                                     <th>Ngày đặt</th>
-                                    <th>Số đặt</th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($recentOrders as $i => $order)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
+                                    <td><strong>{{ $order->order_number }}</strong></td>
                                     <td>{{ $order->customer_name }}</td>
                                     <td>{{ $order->customer_phone }}</td>
-                                    <td>{{ number_format($order->price, 0, ',', '.') }}₫</td>
-                                    <td>{{ number_format($order->tax, 0, ',', '.') }}₫</td>
                                     <td>{{ number_format($order->total, 0, ',', '.') }}₫</td>
-                                    <td>{{ ucfirst($order->status) }}</td>
+                                    <td>
+                                        @switch($order->status)
+                                            @case('pending')
+                                                <span class="badge bg-warning">Chờ xử lý</span>
+                                                @break
+                                            @case('delivered')
+                                                <span class="badge bg-success">Đã giao</span>
+                                                @break
+                                            @case('canceled')
+                                                <span class="badge bg-danger">Đã hủy</span>
+                                                @break
+                                            @case('waiting_pickup')
+                                                <span class="badge bg-info">Chờ lấy hàng</span>
+                                                @break
+                                        @endswitch
+                                    </td>
                                     <td>{{ \Illuminate\Support\Carbon::parse($order->order_date)->format('d/m/Y H:i') }}</td>
-                                    <td>{{ $order->order_number }}</td>
+                                    <td>
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-info">Xem</a>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>

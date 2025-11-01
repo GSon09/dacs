@@ -10,6 +10,34 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    <!-- Bộ lọc -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('orders.index') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm</label>
+                    <input type="text" name="search" class="form-control" placeholder="Mã đơn, tên KH, SĐT..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="status" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
+                        <option value="waiting_pickup" {{ request('status') == 'waiting_pickup' ? 'selected' : '' }}>Chờ lấy hàng</option>
+                        <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Đã giao</option>
+                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="{{ route('orders.index') }}" class="btn btn-secondary w-100">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -41,22 +69,22 @@
                             <td>
                                 @switch($order->status)
                                     @case('pending')
-                                        Chờ xử lý
+                                        <span class="badge bg-warning">Chờ xử lý</span>
                                         @break
                                     @case('delivered')
-                                        Đã giao
+                                        <span class="badge bg-success">Đã giao</span>
                                         @break
                                     @case('canceled')
-                                        Đã hủy
+                                        <span class="badge bg-danger">Đã hủy</span>
                                         @break
                                     @case('waiting_pickup')
-                                        Chờ lấy hàng
+                                        <span class="badge bg-info">Chờ lấy hàng</span>
                                         @break
                                     @default
                                         {{ $order->status }}
                                 @endswitch
                             </td>
-                            <td>{{ $order->order_date }}</td>
+                            <td>{{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y H:i') }}</td>
                             <td>
                                 <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">Xem</a>
                                 <a href="{{ route('orders.edit', $order) }}" class="btn btn-sm btn-secondary">Sửa</a>

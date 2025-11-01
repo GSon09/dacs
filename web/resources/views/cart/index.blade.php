@@ -137,9 +137,9 @@
                             </div>
                         @endif
 
-                        <button class="btn btn-lg w-100 mb-2" style="background: #4B2067; color: white;">
+                        <a href="{{ route('checkout.index') }}" class="btn btn-lg w-100 mb-2" style="background: #4B2067; color: white;">
                             <i class="bi bi-credit-card"></i> Thanh toán
-                        </button>
+                        </a>
                         
                         <div class="text-center mt-3">
                             <small class="text-muted">

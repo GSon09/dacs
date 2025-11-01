@@ -27,8 +27,25 @@
             
             <div class="mb-3">
                 <div class="d-flex align-items-center mb-2">
-                    <span class="text-warning me-2" style="font-size: 1.2em;">★★★★☆</span>
-                    <span class="text-muted">(4.5/5 - 128 đánh giá)</span>
+                    @php
+                        $avgRating = $book->averageRating();
+                        $totalReviews = $book->totalReviews();
+                        $fullStars = floor($avgRating);
+                        $halfStar = ($avgRating - $fullStars) >= 0.5;
+                        $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                    @endphp
+                    <span class="text-warning me-2" style="font-size: 1.2em;">
+                        @for($i = 0; $i < $fullStars; $i++)★@endfor
+                        @if($halfStar)★@endif
+                        @for($i = 0; $i < $emptyStars; $i++)☆@endfor
+                    </span>
+                    <span class="text-muted">
+                        @if($totalReviews > 0)
+                            ({{ number_format($avgRating, 1) }}/5 - {{ $totalReviews }} đánh giá)
+                        @else
+                            (Chưa có đánh giá)
+                        @endif
+                    </span>
                 </div>
             </div>
 
@@ -134,8 +151,100 @@
                     <p style="white-space: pre-line;">{{ $book->description ?? 'Chưa có mô tả cho sản phẩm này.' }}</p>
                 </div>
                 <div class="tab-pane fade" id="reviews" role="tabpanel">
-                    <h5 class="fw-bold mb-3">Đánh giá từ khách hàng</h5>
-                    <p class="text-muted">Chưa có đánh giá nào.</p>
+                    <h5 class="fw-bold mb-4">Đánh giá từ khách hàng</h5>
+                    
+                    <!-- Tổng quan đánh giá -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center border-end">
+                            <div class="mb-2">
+                                <h1 class="display-3 fw-bold text-warning mb-0">{{ number_format($avgRating, 1) }}</h1>
+                                <div class="text-warning fs-4">
+                                    @for($i = 0; $i < $fullStars; $i++)★@endfor
+                                    @if($halfStar)★@endif
+                                    @for($i = 0; $i < $emptyStars; $i++)☆@endfor
+                                </div>
+                                <p class="text-muted">{{ $totalReviews }} đánh giá</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            @php
+                                $ratingCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+                                foreach($book->reviews as $review) {
+                                    $ratingCounts[$review->rating]++;
+                                }
+                            @endphp
+                            @foreach([5,4,3,2,1] as $star)
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="me-2" style="width: 80px;">{{ $star }} sao</span>
+                                    <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                        @php
+                                            $percentage = $totalReviews > 0 ? ($ratingCounts[$star] / $totalReviews) * 100 : 0;
+                                        @endphp
+                                        <div class="progress-bar bg-warning" style="width: {{ $percentage }}%"></div>
+                                    </div>
+                                    <span class="text-muted" style="width: 50px;">{{ $ratingCounts[$star] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Form đánh giá (chỉ hiện nếu đã mua) -->
+                    <div id="review-form-container" class="mb-4">
+                        @auth
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-3">Viết đánh giá của bạn</h6>
+                                    <div id="review-eligibility-check">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> 
+                                <a href="{{ route('login') }}">Đăng nhập</a> để viết đánh giá
+                            </div>
+                        @endauth
+                    </div>
+
+                    <!-- Danh sách đánh giá -->
+                    <div id="reviews-list">
+                        @forelse($book->reviews()->orderBy('is_verified_purchase', 'desc')->orderBy('created_at', 'desc')->get() as $review)
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <div class="d-flex align-items-center mb-1">
+                                                <strong class="me-2">{{ $review->getReviewerDisplayName() }}</strong>
+                                                @if($review->is_verified_purchase)
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Đã mua hàng
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="text-warning mb-1">
+                                                @for($i = 0; $i < $review->rating; $i++)★@endfor
+                                                @for($i = $review->rating; $i < 5; $i++)☆@endfor
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                                    </div>
+                                    @if($review->comment)
+                                        <p class="mb-0">{{ $review->comment }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-chat-square-text" style="font-size: 3em;"></i>
+                                <p class="mt-2">Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
@@ -171,4 +280,95 @@
     </div>
     @endif
 </div>
+
+@auth
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user can review
+    fetch('{{ route("review.canReview", $book->id) }}')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('review-eligibility-check');
+            
+            if (data.has_reviewed) {
+                container.innerHTML = `
+                    <div class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle"></i> Bạn đã đánh giá sản phẩm này rồi!
+                    </div>
+                `;
+            } else if (data.can_review) {
+                // Show review form
+                container.innerHTML = `
+                    <form action="{{ route('review.store', $book->id) }}" method="POST" id="review-form">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Đánh giá của bạn <span class="text-danger">*</span></label>
+                            <div class="star-rating mb-2">
+                                ${[5,4,3,2,1].map(star => `
+                                    <input type="radio" id="star${star}" name="rating" value="${star}" required>
+                                    <label for="star${star}" title="${star} sao">★</label>
+                                `).join('')}
+                            </div>
+                            <div id="rating-error" class="text-danger small"></div>
+                        </div>
+                        ${data.eligible_orders && data.eligible_orders.length > 0 ? `
+                            <input type="hidden" name="order_id" value="${data.eligible_orders[0].id}">
+                        ` : ''}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nhận xét</label>
+                            <textarea name="comment" class="form-control" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Gửi đánh giá
+                        </button>
+                    </form>
+                `;
+            } else if (data.has_purchased) {
+                container.innerHTML = `
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-clock"></i> Chỉ có thể đánh giá sau khi đơn hàng được giao
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Bạn cần mua sản phẩm này để có thể đánh giá
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('review-eligibility-check').innerHTML = `
+                <div class="alert alert-danger mb-0">Không thể tải form đánh giá</div>
+            `;
+        });
+});
+</script>
+
+<style>
+/* Star Rating CSS */
+.star-rating {
+    direction: rtl;
+    display: inline-flex;
+    font-size: 2em;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    color: #ddd;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
+}
+</style>
+@endauth
 @endsection

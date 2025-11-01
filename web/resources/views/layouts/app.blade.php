@@ -152,6 +152,27 @@
                                     @endif
                                     <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Giỏ Hàng</div>
                                 </a>
+
+                                <!-- Notifications Icon -->
+                                @auth
+                                <a href="{{ route('notifications.index') }}" class="nav-link p-0 position-relative" style="color: #888;">
+                                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 6c-2.2 0-4 1.8-4 4v6l-2 2v2h12v-2l-2-2v-6c0-2.2-1.8-4-4-4z" fill="#FFD6E0" stroke="#4B2067" stroke-width="1.5"/>
+                                        <path d="M14 24c0 1.1.9 2 2 2s2-.9 2-2h-4z" fill="#4B2067"/>
+                                        <circle cx="16" cy="10" r="1.5" fill="#4B2067"/>
+                                    </svg>
+                                    @php
+                                        $notifCount = Auth::user()->unreadNotifications()->count();
+                                    @endphp
+                                    @if($notifCount > 0)
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7em;">
+                                            {{ $notifCount > 9 ? '9+' : $notifCount }}
+                                        </span>
+                                    @endif
+                                    <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Thông báo</div>
+                                </a>
+                                @endauth
+
                                 <div class="dropdown">
                                     <a class="nav-link p-0" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #888;">
                                         <!-- Cute Account SVG -->

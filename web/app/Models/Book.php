@@ -22,4 +22,19 @@ class Book extends Model {
     {
         return $this->belongsTo(Publisher::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function averageRating()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function totalReviews()
+    {
+        return $this->reviews()->count();
+    }
 }
