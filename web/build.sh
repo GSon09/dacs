@@ -10,3 +10,7 @@ php artisan view:cache
 
 npm ci
 npm run build
+
+# Ensure storage and cache are writable and linked
+chmod -R 0777 storage bootstrap/cache || true
+php artisan storage:link || true
