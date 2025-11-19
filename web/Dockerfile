@@ -33,8 +33,7 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm ci && npm run build
 
 # Permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+RUN chmod -R 777 storage
 
 # Enable Apache rewrite
 RUN a2enmod rewrite
