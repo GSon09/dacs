@@ -231,7 +231,16 @@
                                                 @for($i = $review->rating; $i < 5; $i++)☆@endfor
                                             </div>
                                         </div>
-                                        <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                                        <div class="d-flex align-items-center">
+                                            <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                                            @if(auth()->check() && auth()->id() == $review->user_id)
+                                                <form method="POST" action="{{ route('review.destroy', $review->id) }}" class="ms-2 d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </div>
                                     @if($review->comment)
                                         <p class="mb-0">{{ $review->comment }}</p>

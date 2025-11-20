@@ -126,7 +126,7 @@
                                         <path d="M16 6c-4 0-7 3-7 7v5c0 1.2-.8 2.2-2 2.5v1c0 .8.7 1.5 1.5 1.5h15c.8 0 1.5-.7 1.5-1.5v-1c-1.2-.3-2-1.3-2-2.5v-5c0-4-3-7-7-7z" fill="#fff" stroke="#4B2067" stroke-width="1.5"/>
                                         <circle cx="16" cy="27" r="2" fill="#FFD6E0" stroke="#4B2067" stroke-width="1"/>
                                     </svg>
-                                    <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Thông Báo</div>
+                                    <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Đơn hàng</div>
                                 </a>
                                 <a class="nav-link p-0" href="#" style="color: #888;">
                                     <!-- Cute Cart SVG -->

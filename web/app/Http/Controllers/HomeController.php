@@ -30,10 +30,54 @@ class HomeController extends Controller
     public function allProducts(Request $request)
     {
         $query = \App\Models\Book::with(['author', 'publisher', 'category']);
+        // Keyword search across title, description, author, publisher, category
+        $keyword = $request->get('q');
+        if ($keyword) {
+            $like = '%' . $keyword . '%';
+            $query->where(function ($q) use ($like) {
+                $q->where('title', 'like', $like)
+                  ->orWhere('description', 'like', $like)
+                  ->orWhereHas('author', function ($qa) use ($like) {
+                      $qa->where('name', 'like', $like);
+                  })
+                  ->orWhereHas('publisher', function ($qp) use ($like) {
+                      $qp->where('name', 'like', $like);
+                  })
+                  ->orWhereHas('category', function ($qc) use ($like) {
+                      $qc->where('name', 'like', $like);
+                  });
+            });
+        }
         
         // Lọc theo category
         if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
+        }
+
+        // Lọc theo author (accept numeric id or name string)
+        if ($request->has('author_id') && $request->author_id) {
+            $authorFilter = $request->author_id;
+            if (is_numeric($authorFilter)) {
+                $query->where('author_id', $authorFilter);
+            } else {
+                $likeA = '%' . $authorFilter . '%';
+                $query->whereHas('author', function ($qa) use ($likeA) {
+                    $qa->where('name', 'like', $likeA);
+                });
+            }
+        }
+
+        // Lọc theo publisher (accept numeric id or name string)
+        if ($request->has('publisher_id') && $request->publisher_id) {
+            $publisherFilter = $request->publisher_id;
+            if (is_numeric($publisherFilter)) {
+                $query->where('publisher_id', $publisherFilter);
+            } else {
+                $likeP = '%' . $publisherFilter . '%';
+                $query->whereHas('publisher', function ($qp) use ($likeP) {
+                    $qp->where('name', 'like', $likeP);
+                });
+            }
         }
         
         // Lọc theo giá

@@ -70,7 +70,25 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="card-title">Doanh thu 7 ngày gần nhất</h6>
+                    <h6 class="card-title">Doanh thu</h6>
+
+                    <form method="GET" action="{{ request()->url() }}" class="row g-2 align-items-end mb-3">
+                        <div class="col-auto">
+                            <label class="form-label small">Từ ngày</label>
+                            <input type="date" name="start_date" class="form-control" value="{{ request('start_date', optional($startDate)->format('Y-m-d')) }}">
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label small">Đến ngày</label>
+                            <input type="date" name="end_date" class="form-control" value="{{ request('end_date', optional($endDate)->format('Y-m-d')) }}">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary">Xem</button>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ request()->url() }}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </form>
+
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>

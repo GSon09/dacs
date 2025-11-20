@@ -11,7 +11,7 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center mb-4">
-            <a href="/" style="text-decoration:none; color:#4B2067; font-weight:bold; font-size:2rem; font-family:Georgia,serif;">
+            <a href="{{ route('home.index') }}" style="text-decoration:none; color:#4B2067; font-weight:bold; font-size:2rem; font-family:Georgia,serif;">
                 <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:10px;">
                     <rect x="6" y="8" width="36" height="32" rx="8" fill="#FFD6E0" stroke="#4B2067" stroke-width="2"/>
                     <rect x="12" y="14" width="24" height="20" rx="4" fill="#fff" stroke="#4B2067" stroke-width="1.5"/>

@@ -26,7 +26,7 @@
         <header class="w-100 mb-0">
             <nav class="navbar navbar-expand-lg" style="background: #4B2067;">
                 <div class="container d-flex align-items-center">
-                    <a class="navbar-brand fw-bold text-white me-3 d-flex align-items-center" href="#" style="font-size: 1.7rem; letter-spacing: 2px; font-family: 'Georgia', serif;">
+                    <a class="navbar-brand fw-bold text-white me-3 d-flex align-items-center" href="{{ route('home.index') }}" style="font-size: 1.7rem; letter-spacing: 2px; font-family: 'Georgia', serif;">
                         <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
                             <rect x="6" y="8" width="36" height="32" rx="8" fill="#FFD6E0" stroke="#4B2067" stroke-width="2"/>
                             <rect x="12" y="14" width="24" height="20" rx="4" fill="#fff" stroke="#4B2067" stroke-width="1.5"/>
@@ -106,8 +106,8 @@
                             </div>
                         </div>
                     </div>
-                    <form class="d-flex ms-4 flex-grow-1" style="flex-grow-1" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Tìm kiếm sách, tác giả, chủ đề..." aria-label="Search">
+                    <form method="GET" action="{{ route('products.all') }}" class="d-flex ms-4 flex-grow-1" style="flex-grow-1" role="search">
+                        <input class="form-control me-2" type="search" name="q" placeholder="Tìm sách / tác giả / NXB / danh mục..." value="{{ request('q') }}" aria-label="Search">
                         <button class="btn d-flex align-items-center justify-content-center" style="background: #4B2067; color: #fff; width: 40px; height: 40px;" type="submit">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.442 1.398a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
@@ -156,11 +156,11 @@
                                             <circle cx="16" cy="10" r="1.5" fill="#4B2067"/>
                                         </svg>
                                         <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7em; display:none;">0</span>
-                                        <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Thông báo</div>
+                                        <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Đơn hàng của tôi</div>
                                     </a>
-                                    <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifDropdown" style="width:320px; max-width:90vw;">
+                                    <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifDropdown" style="min-width:220px; width:auto; max-width:90vw; white-space:normal;">
                                         <li class="px-2 py-2 d-flex justify-content-between align-items-center">
-                                            <strong>Thông báo</strong>
+                                            <strong>Đơn hàng của tôi</strong>
                                             <a href="{{ route('notifications.index') }}" class="small">Xem tất cả</a>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
@@ -209,6 +209,7 @@
         <div class="h-14.5 hidden lg:block"></div>
 
         {{-- Notifications JS: fetch count and recent, handle mark-as-read --}}
+        @auth
         <script>
             (function(){
                 const badge = document.getElementById('notif-badge');
@@ -221,7 +222,7 @@
 
                 async function fetchCount(){
                     try{
-                        const res = await fetch(countUrl, {credentials: 'same-origin'});
+                        const res = await fetch(countUrl, {credentials: 'same-origin', headers: {'Accept': 'application/json'}});
                         if(!res.ok) return;
                         const data = await res.json();
                         const n = data.count || 0;
@@ -240,7 +241,7 @@
                     if(!listContainer) return;
                     listContainer.innerHTML = '';
                     if(!items || items.length === 0){
-                        listContainer.innerHTML = '<li class="dropdown-item text-center text-muted py-3">Không có thông báo</li>';
+                        listContainer.innerHTML = '<li class="dropdown-item text-center text-muted py-3">Không có đơn hàng</li>';
                         return;
                     }
                     items.forEach(item => {
@@ -268,7 +269,7 @@
 
                 async function fetchRecent(){
                     try{
-                        const res = await fetch(recentUrl, {credentials: 'same-origin'});
+                        const res = await fetch(recentUrl, {credentials: 'same-origin', headers: {'Accept': 'application/json'}});
                         if(!res.ok) return;
                         const data = await res.json();
                         renderNotifications(data);
@@ -300,5 +301,6 @@
                 }
             })();
         </script>
+        @endauth
     </body>
 </html>

@@ -109,4 +109,21 @@ class ReviewController extends Controller
             'eligible_orders' => $eligibleOrders
         ]);
     }
+
+    // Delete a review (only owner can delete)
+    public function destroy($id)
+    {
+        $review = Review::findOrFail($id);
+
+        if (!Auth::check() || $review->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Bạn không có quyền xóa đánh giá này.');
+        }
+
+        try {
+            $review->delete();
+            return redirect()->back()->with('success', 'Đã xóa đánh giá của bạn.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi khi xóa đánh giá: ' . $e->getMessage());
+        }
+    }
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
 //Auth::routes();
 
 // Hiển thị giao diện đăng nhập và đăng ký đúng
@@ -93,6 +94,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::post('/notifications/clear-read', [NotificationController::class, 'clearRead'])->name('notifications.clearRead');
+    // Allow users to delete their own reviews
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('review.destroy');
+    Route::post('/orders/{id}/reorder', [OrderController::class, 'reorder'])->name('orders.reorder');
+    // Customer order actions
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {

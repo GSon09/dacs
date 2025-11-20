@@ -72,8 +72,9 @@
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                @if($item->book->cover_path && file_exists(public_path('storage/' . $item->book->cover_path)))
-                                                    <img src="{{ asset('storage/' . $item->book->cover_path) }}" 
+                                                @php $cover = $item->book->cover_path ?? null; @endphp
+                                                @if($cover && \Illuminate\Support\Facades\Storage::disk('public')->exists($cover))
+                                                    <img src="{{ asset('storage/' . $cover) }}" 
                                                          alt="{{ $item->book->title }}" 
                                                          style="width: 50px; height: 70px; object-fit: cover;" 
                                                          class="me-3 rounded">
@@ -157,6 +158,18 @@
                 <a href="{{ route('products.all') }}" class="btn btn-outline-secondary btn-lg ms-2">
                     <i class="bi bi-cart"></i> Tiếp tục mua sắm
                 </a>
+                        @if($order->user_id === auth()->id() && !in_array($order->status, ['delivered','canceled']))
+                            <form action="{{ route('orders.cancel', $order->id) }}" method="POST" class="d-inline ms-2" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn này?');">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-lg ms-2"> <i class="bi bi-x-circle"></i> Hủy đơn</button>
+                            </form>
+                        @endif
+                        @if($order->user_id === auth()->id())
+                            <form action="{{ route('orders.reorder', $order->id) }}" method="POST" class="d-inline ms-2">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-lg ms-2"><i class="bi bi-arrow-repeat"></i> Mua Lại</button>
+                            </form>
+                        @endif
             </div>
         </div>
     </div>

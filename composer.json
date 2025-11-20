@@ -2,7 +2,8 @@
     "name": "gson09/dacs-root",
     "description": "Helper composer.json at repo root so Heroku PHP buildpack detects app in subfolder",
     "require": {
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "ext-pdo_sqlite": "*"
     },
     "scripts": {
         "post-install-cmd": [

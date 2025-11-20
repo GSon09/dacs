@@ -118,11 +118,11 @@
 					Tất cả sản phẩm ({{ $books->total() }})
 				</div>
 				<div class="d-flex gap-2">
-					<form method="GET" action="{{ route('products.all') }}" class="d-flex gap-2">
+					<form method="GET" action="{{ route('products.all') }}" class="d-flex gap-2 align-items-center">
 						<input type="hidden" name="category_id" value="{{ request('category_id') }}">
 						<input type="hidden" name="price_range" value="{{ request('price_range') }}">
 						<input type="hidden" name="type" value="{{ request('type') }}">
-						
+
 						<select name="sort" class="form-select w-auto" onchange="this.form.submit()">
 							<option value="">Bán Chạy Tuần</option>
 							<option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới Nhất</option>
