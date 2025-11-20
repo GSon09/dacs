@@ -44,15 +44,17 @@ Route::get('/book/{id}', [HomeController::class, 'bookDetail'])->name('book.deta
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{bookId}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/add/{bookId}', [CartController::class, 'add'])->middleware('auth')->name('cart.add');
 Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-// Thanh toán
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
+// Thanh toán (phải đăng nhập mới được thực hiện)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
+});
 
 // Đánh giá sản phẩm
 Route::post('/book/{bookId}/review', [ReviewController::class, 'store'])->name('review.store');
@@ -76,6 +78,12 @@ Route::get('/welcome', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
+
+    // My account (view & update)
+    Route::get('/account', [UserController::class, 'edit'])->name('user.account.edit');
+    Route::put('/account', [UserController::class, 'update'])->name('user.account.update');
+    Route::post('/account/send-otp', [UserController::class, 'sendPhoneOtp'])->name('user.account.sendOtp');
+    Route::post('/account/verify-otp', [UserController::class, 'verifyPhoneOtp'])->name('user.account.verifyOtp');
     
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

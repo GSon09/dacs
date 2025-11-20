@@ -1,0 +1,15 @@
+{
+    "name": "gson09/dacs-root",
+    "description": "Helper composer.json at repo root so Heroku PHP buildpack detects app in subfolder",
+    "require": {},
+    "scripts": {
+        "post-install-cmd": [
+            "if [ -f web/composer.json ]; then cd web && composer install --no-dev --optimize-autoloader; fi"
+        ]
+    },
+    "extra": {
+        "heroku": {
+            "webroot": "web/public"
+        }
+    }
+}

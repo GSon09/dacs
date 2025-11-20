@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
@@ -119,15 +120,7 @@
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto align-items-center">
                             <li class="nav-item d-flex align-items-center mx-3 text-center" style="gap: 0.5rem;">
-                                <a class="nav-link p-0" href="#" style="color: #888;">
-                                    <!-- Cute Notification Bell SVG -->
-                                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <ellipse cx="16" cy="24" rx="7" ry="3" fill="#FFD6E0"/>
-                                        <path d="M16 6c-4 0-7 3-7 7v5c0 1.2-.8 2.2-2 2.5v1c0 .8.7 1.5 1.5 1.5h15c.8 0 1.5-.7 1.5-1.5v-1c-1.2-.3-2-1.3-2-2.5v-5c0-4-3-7-7-7z" fill="#fff" stroke="#4B2067" stroke-width="1.5"/>
-                                        <circle cx="16" cy="27" r="2" fill="#FFD6E0" stroke="#4B2067" stroke-width="1"/>
-                                    </svg>
-                                    <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Thông Báo</div>
-                                </a>
+                            
                                 <a class="nav-link p-0 position-relative" href="{{ route('cart.index') }}" style="color: #888;">
                                     <!-- Cute Cart SVG -->
                                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -153,24 +146,29 @@
                                     <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Giỏ Hàng</div>
                                 </a>
 
-                                <!-- Notifications Icon -->
+                                <!-- Notifications Icon and dropdown -->
                                 @auth
-                                <a href="{{ route('notifications.index') }}" class="nav-link p-0 position-relative" style="color: #888;">
-                                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M16 6c-2.2 0-4 1.8-4 4v6l-2 2v2h12v-2l-2-2v-6c0-2.2-1.8-4-4-4z" fill="#FFD6E0" stroke="#4B2067" stroke-width="1.5"/>
-                                        <path d="M14 24c0 1.1.9 2 2 2s2-.9 2-2h-4z" fill="#4B2067"/>
-                                        <circle cx="16" cy="10" r="1.5" fill="#4B2067"/>
-                                    </svg>
-                                    @php
-                                        $notifCount = Auth::user()->unreadNotifications()->count();
-                                    @endphp
-                                    @if($notifCount > 0)
-                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7em;">
-                                            {{ $notifCount > 9 ? '9+' : $notifCount }}
-                                        </span>
-                                    @endif
-                                    <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Thông báo</div>
-                                </a>
+                                <div class="nav-item dropdown">
+                                    <a class="nav-link p-0 position-relative" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #888;">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16 6c-2.2 0-4 1.8-4 4v6l-2 2v2h12v-2l-2-2v-6c0-2.2-1.8-4-4-4z" fill="#FFD6E0" stroke="#4B2067" stroke-width="1.5"/>
+                                            <path d="M14 24c0 1.1.9 2 2 2s2-.9 2-2h-4z" fill="#4B2067"/>
+                                            <circle cx="16" cy="10" r="1.5" fill="#4B2067"/>
+                                        </svg>
+                                        <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7em; display:none;">0</span>
+                                        <div style="font-size: 0.95em; color: #888; margin-top: 2px;">Thông báo</div>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifDropdown" style="width:320px; max-width:90vw;">
+                                        <li class="px-2 py-2 d-flex justify-content-between align-items-center">
+                                            <strong>Thông báo</strong>
+                                            <a href="{{ route('notifications.index') }}" class="small">Xem tất cả</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <div id="notif-list">
+                                            <li class="dropdown-item text-center text-muted py-3">Đang tải...</li>
+                                        </div>
+                                    </ul>
+                                </div>
                                 @endauth
 
                                 <div class="dropdown">
@@ -209,5 +207,98 @@
 
         {{-- Spacer for layout --}}
         <div class="h-14.5 hidden lg:block"></div>
+
+        {{-- Notifications JS: fetch count and recent, handle mark-as-read --}}
+        <script>
+            (function(){
+                const badge = document.getElementById('notif-badge');
+                const listContainer = document.getElementById('notif-list');
+                const dropdownToggle = document.getElementById('notifDropdown');
+                const countUrl = '{{ route('notifications.count') }}';
+                const recentUrl = '{{ route('notifications.recent') }}';
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const csrf = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
+                async function fetchCount(){
+                    try{
+                        const res = await fetch(countUrl, {credentials: 'same-origin'});
+                        if(!res.ok) return;
+                        const data = await res.json();
+                        const n = data.count || 0;
+                        if(badge){
+                            if(n > 0){
+                                badge.style.display = 'inline-block';
+                                badge.textContent = n > 9 ? '9+' : n;
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    }catch(e){ console.error('notif count', e); }
+                }
+
+                function renderNotifications(items){
+                    if(!listContainer) return;
+                    listContainer.innerHTML = '';
+                    if(!items || items.length === 0){
+                        listContainer.innerHTML = '<li class="dropdown-item text-center text-muted py-3">Không có thông báo</li>';
+                        return;
+                    }
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'dropdown-item';
+                        li.style.cursor = 'pointer';
+                        li.dataset.id = item.id;
+                        const title = document.createElement('div');
+                        title.innerHTML = item.title || (item.data && item.data.title) || 'Không có tiêu đề';
+                        title.style.fontWeight = item.is_read ? '400' : '600';
+                        const msg = document.createElement('div');
+                        msg.className = 'small text-muted';
+                        msg.textContent = item.message || (item.data && item.data.message) || '';
+                        li.appendChild(title);
+                        if(msg.textContent) li.appendChild(msg);
+                        li.addEventListener('click', async function(e){
+                            e.preventDefault();
+                            await markAsRead(item.id);
+                            if(item.link){ window.location.href = item.link; }
+                            else { title.style.fontWeight = '400'; fetchCount(); }
+                        });
+                        listContainer.appendChild(li);
+                    });
+                }
+
+                async function fetchRecent(){
+                    try{
+                        const res = await fetch(recentUrl, {credentials: 'same-origin'});
+                        if(!res.ok) return;
+                        const data = await res.json();
+                        renderNotifications(data);
+                    }catch(e){ console.error('notif recent', e); }
+                }
+
+                async function markAsRead(id){
+                    try{
+                        const url = '{{ url('/notifications') }}/' + id + '/read';
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrf,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'same-origin'
+                        });
+                        if(res.ok) fetchCount();
+                    }catch(e){ console.error('mark read', e); }
+                }
+
+                fetchCount();
+                setInterval(fetchCount, 30000);
+
+                if(dropdownToggle){
+                    // Bootstrap emits show.bs.dropdown; fallback to click
+                    dropdownToggle.addEventListener('show.bs.dropdown' in window ? 'show.bs.dropdown' : 'click', function(){ fetchRecent(); });
+                }
+            })();
+        </script>
     </body>
 </html>
