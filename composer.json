@@ -5,7 +5,11 @@
     "scripts": {
         "post-install-cmd": [
             "if [ -f web/composer.json ]; then cd web && composer install --no-dev --optimize-autoloader; fi"
-        ]
+        ],
+        "post-update-cmd": [
+            "if [ -f web/composer.json ]; then cd web && composer install --no-dev --optimize-autoloader; fi"
+        ],
+        "heroku-post-build": "if [ -f web/composer.json ]; then cd web && composer install --no-dev --optimize-autoloader; fi"
     },
     "extra": {
         "heroku": {
